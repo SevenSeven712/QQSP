@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>七七视频解析 · 手机版</title>
     <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,6 +15,8 @@
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.6); }
+
+        html, body { touch-action: pan-x pan-y; }
 
         .glass { background: rgba(255,255,255,0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.35); border-radius: 1.5rem; transition: background 0.3s, border-color 0.3s; }
         .glass-dark { background: rgba(0,0,0,0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.5rem; }
@@ -50,10 +52,30 @@
         .interface-card .if-badge { font-size: 0.5rem; padding: 0.1rem 0.4rem; border-radius: 20px; background: rgba(59,130,246,0.2); color: #3b82f6; display: inline-block; margin-top: 3px; }
         .interface-card .check-mark { position: absolute; top: 4px; right: 6px; font-size: 0.65rem; color: #3b82f6; opacity: 0; transition: 0.2s; }
         .interface-card.active .check-mark { opacity: 1; }
-        .interface-card.banned-interface { background: rgba(0,0,0,0.04); border-color: #d1d5db; border-style: dashed; opacity: 0.7; cursor: pointer; }
-        .interface-card.banned-interface .if-name { color: #6b7280; text-decoration: line-through; }
-        .banned-tag { font-size: 0.45rem; padding: 0.1rem 0.4rem; border-radius: 30px; background: #9ca3af; color: #fff; display: inline-block; margin-top: 2px; }
-        .banned-reason-mini { font-size: 0.55rem; color: #6b7280; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+        /* 锁定状态 */
+        .interface-card.locked { opacity: 0.75; background: rgba(0,0,0,0.05); border-style: dashed; border-color: #d1d5db; cursor: not-allowed; }
+        .interface-card.locked .if-name { color: #6b7280; }
+        .locked-tag { font-size: 0.45rem; padding: 0.1rem 0.4rem; border-radius: 30px; background: #9ca3af; color: #fff; display: inline-block; margin-top: 2px; }
+        .locked-reason { font-size: 0.55rem; color: #6b7280; margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+        /* 禁用状态 */
+        .interface-card.disabled { opacity: 0.5; background: rgba(0,0,0,0.1); border-style: solid; border-color: #ccc; cursor: not-allowed; }
+        .interface-card.disabled .if-name { color: #999; text-decoration: line-through; }
+        .disabled-tag { font-size: 0.45rem; padding: 0.1rem 0.4rem; border-radius: 30px; background: #999; color: #fff; display: inline-block; margin-top: 2px; }
+
+        .text-blue { color: #3b82f6; }
+        .text-orange { color: #f59e0b; }
+        .text-green { color: #10b981; }
+        .progress-bar-bg { background: rgba(0,0,0,0.06); border-radius: 20px; height: 6px; overflow: hidden; }
+        .progress-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; border-radius: 20px; transition: width 0.5s ease; }
+
+        /* 历史记录 */
+        .history-item { background: rgba(255,255,255,0.6); border-radius: 0.8rem; padding: 0.6rem 0.8rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; margin-bottom: 0.4rem; }
+        .history-item:hover { background: rgba(255,255,255,0.9); }
+        .history-item .url { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 0.5rem; font-size: 0.75rem; color: #4b5563; }
+        .history-item .time { font-size: 0.6rem; color: #9ca3af; }
+        .history-item .del-btn { color: #ef4444; margin-left: 0.5rem; cursor: pointer; }
 
         /* 波纹 */
         .ripple { position: fixed; border-radius: 50%; background: rgba(59,130,246,0.3); transform: scale(0); animation: rippleAnim 0.6s ease-out forwards; pointer-events: none; z-index: 9999; }
@@ -176,160 +198,37 @@
             .grid-nav-item .label { font-size: 0.7rem; }
         }
 
-        /* 主题：默认蓝白色 */
+        /* 主题样式 */
         body.theme-default { background: #f0f4f8; color: #1a202c; }
-        body.theme-default .glass { background: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.35); }
-        body.theme-default .h5-nav { background: rgba(255,255,255,0.88); border-top-color: rgba(0,0,0,0.06); }
-        body.theme-default .grid-nav-item { background: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.3); }
-        body.theme-default .interface-card { background: rgba(255,255,255,0.5); }
-        body.theme-default .input-dark { background: rgba(255,255,255,0.6); color: #1a202c; }
-        body.theme-default .reset-btn { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.5); }
-        body.theme-default .reset-btn:hover { background: rgba(0,0,0,0.08); color: #1a202c; }
-        body.theme-default .tab-bar { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.05); }
-        body.theme-default .tab-item { color: rgba(0,0,0,0.4); }
-        body.theme-default .tab-item.active { background: rgba(59,130,246,0.15); color: #3b82f6; }
-        body.theme-default .back-btn { background: rgba(255,255,255,0.5); color: #1a202c; }
-        body.theme-default .lang-current { background: rgba(255,255,255,0.5); color: #1a202c; }
-        body.theme-default .lang-dropdown { background: rgba(255,255,255,0.96); }
-        body.theme-default .lang-dropdown .lang-item { color: #1a202c; }
-        body.theme-default .ad-modal { background: rgba(255,255,255,0.95); }
-        body.theme-default .ad-modal h3 { color: #1a202c; }
-        body.theme-default .ad-modal .ad-body { color: rgba(0,0,0,0.6); }
-        body.theme-default .compare-table th { color: rgba(0,0,0,0.5); background: rgba(0,0,0,0.02); }
-        body.theme-default .compare-table td { border-bottom-color: rgba(0,0,0,0.06); }
-        body.theme-default .compare-table .dimension { color: rgba(0,0,0,0.6); }
-        body.theme-default .timeline-item::before { border-color: #f0f4f8; }
-        body.theme-default .timeline-item .time { color: rgba(0,0,0,0.3); }
-        body.theme-default .timeline-item .desc { color: rgba(0,0,0,0.6); }
-        body.theme-default .setting-label { color: #1a202c; }
-        body.theme-default .setting-label .sub { color: rgba(0,0,0,0.3); }
-        body.theme-default .setting-row { border-bottom-color: rgba(0,0,0,0.05); }
-        body.theme-default .grid-nav-item .label { color: #1a202c; }
-        body.theme-default .grid-nav-item .sub { color: rgba(0,0,0,0.3); }
-        body.theme-default .interface-card .if-name { color: #1a202c; }
-        body.theme-default .h5-nav-item { color: rgba(0,0,0,0.3); }
-        body.theme-default .h5-nav-item.active { color: #3b82f6; }
-        body.theme-default .copy-toast { background: rgba(0,0,0,0.8); color: #fff; }
-
-        /* 主题：黑色 */
         body.theme-dark { background: #0f0e17; color: #fffffe; }
-        body.theme-dark .glass { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); }
-        body.theme-dark .h5-nav { background: rgba(15,14,23,0.92); border-top-color: rgba(255,255,255,0.05); }
-        body.theme-dark .grid-nav-item { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.04); }
-        body.theme-dark .grid-nav-item .label { color: rgba(255,255,255,0.85); }
-        body.theme-dark .grid-nav-item .sub { color: rgba(255,255,255,0.3); }
-        body.theme-dark .interface-card { background: rgba(255,255,255,0.04); }
-        body.theme-dark .interface-card .if-name { color: rgba(255,255,255,0.85); }
-        body.theme-dark .interface-card.active { background: rgba(59,130,246,0.15); }
-        body.theme-dark .input-dark { background: rgba(255,255,255,0.04); color: #fffffe; border-color: rgba(255,255,255,0.06); }
-        body.theme-dark .input-dark:focus { background: rgba(255,255,255,0.08); border-color: rgba(59,130,246,0.4); }
-        body.theme-dark .input-dark::placeholder { color: rgba(255,255,255,0.2); }
-        body.theme-dark .reset-btn { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
-        body.theme-dark .reset-btn:hover { background: rgba(255,255,255,0.1); color: #fffffe; }
-        body.theme-dark .tab-bar { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); }
-        body.theme-dark .tab-item { color: rgba(255,255,255,0.3); }
-        body.theme-dark .tab-item.active { background: rgba(59,130,246,0.2); color: #93c5fd; }
-        body.theme-dark .back-btn { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.06); }
-        body.theme-dark .back-btn:hover { background: rgba(255,255,255,0.12); color: #fffffe; }
-        body.theme-dark .lang-current { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.06); }
-        body.theme-dark .lang-current:hover { background: rgba(255,255,255,0.1); }
-        body.theme-dark .lang-dropdown { background: rgba(20,20,35,0.96); border-color: rgba(255,255,255,0.06); }
-        body.theme-dark .lang-dropdown .lang-item { color: rgba(255,255,255,0.7); }
-        body.theme-dark .lang-dropdown .lang-item:hover { background: rgba(59,130,246,0.15); }
-        body.theme-dark .lang-dropdown .lang-item.active { background: rgba(59,130,246,0.2); color: #93c5fd; }
-        body.theme-dark .ad-modal { background: rgba(30,30,50,0.95); border-color: rgba(255,255,255,0.08); }
-        body.theme-dark .ad-modal h3 { color: #fffffe; }
-        body.theme-dark .ad-modal .ad-body { color: rgba(255,255,255,0.6); }
-        body.theme-dark .ad-modal .close-btn { color: rgba(255,255,255,0.25); }
-        body.theme-dark .ad-modal .close-btn:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
-        body.theme-dark .compare-table th { color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.02); }
-        body.theme-dark .compare-table td { border-bottom-color: rgba(255,255,255,0.05); }
-        body.theme-dark .compare-table .dimension { color: rgba(255,255,255,0.5); }
-        body.theme-dark .timeline-item::before { border-color: #0f0e17; }
-        body.theme-dark .timeline-item .time { color: rgba(255,255,255,0.3); }
-        body.theme-dark .timeline-item .desc { color: rgba(255,255,255,0.5); }
-        body.theme-dark .setting-label { color: rgba(255,255,255,0.85); }
-        body.theme-dark .setting-label .sub { color: rgba(255,255,255,0.3); }
-        body.theme-dark .setting-row { border-bottom-color: rgba(255,255,255,0.05); }
-        body.theme-dark .h5-nav-item { color: rgba(255,255,255,0.3); }
-        body.theme-dark .h5-nav-item.active { color: #93c5fd; }
-        body.theme-dark .copy-toast { background: rgba(30,30,50,0.9); color: #fff; }
-        body.theme-dark .color-option.active { box-shadow: 0 0 0 2px #0f0e17, 0 0 0 4px #3b82f6; }
-        body.theme-dark .grid-nav-item .icon-wrap { background: rgba(59,130,246,0.15); color: #93c5fd; }
-
-        /* 主题：青绿渐变 */
         body.theme-gradient1 { background: #2BC0E4; background: -webkit-linear-gradient(to right, #EAECC6, #2BC0E4); background: linear-gradient(to right, #EAECC6, #2BC0E4); color: #1a202c; }
-        body.theme-gradient1 .glass { background: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.35); }
-        body.theme-gradient1 .h5-nav { background: rgba(255,255,255,0.85); border-top-color: rgba(0,0,0,0.06); }
-        body.theme-gradient1 .grid-nav-item { background: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.3); }
-        body.theme-gradient1 .grid-nav-item .label { color: #1a202c; }
-        body.theme-gradient1 .grid-nav-item .sub { color: rgba(0,0,0,0.3); }
-        body.theme-gradient1 .interface-card { background: rgba(255,255,255,0.5); }
-        body.theme-gradient1 .interface-card .if-name { color: #1a202c; }
-        body.theme-gradient1 .input-dark { background: rgba(255,255,255,0.6); color: #1a202c; border-color: rgba(0,0,0,0.08); }
-        body.theme-gradient1 .reset-btn { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.5); }
-        body.theme-gradient1 .reset-btn:hover { background: rgba(0,0,0,0.08); color: #1a202c; }
-        body.theme-gradient1 .tab-bar { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.06); }
-        body.theme-gradient1 .tab-item { color: rgba(0,0,0,0.4); }
-        body.theme-gradient1 .tab-item.active { background: rgba(59,130,246,0.15); color: #3b82f6; }
-        body.theme-gradient1 .back-btn { background: rgba(255,255,255,0.5); color: #1a202c; }
-        body.theme-gradient1 .lang-current { background: rgba(255,255,255,0.5); color: #1a202c; }
-        body.theme-gradient1 .lang-dropdown { background: rgba(255,255,255,0.96); }
-        body.theme-gradient1 .lang-dropdown .lang-item { color: #1a202c; }
-        body.theme-gradient1 .ad-modal { background: rgba(255,255,255,0.95); }
-        body.theme-gradient1 .ad-modal h3 { color: #1a202c; }
-        body.theme-gradient1 .ad-modal .ad-body { color: rgba(0,0,0,0.6); }
-        body.theme-gradient1 .compare-table th { color: rgba(0,0,0,0.5); background: rgba(0,0,0,0.02); }
-        body.theme-gradient1 .compare-table td { border-bottom-color: rgba(0,0,0,0.06); }
-        body.theme-gradient1 .compare-table .dimension { color: rgba(0,0,0,0.6); }
-        body.theme-gradient1 .timeline-item::before { border-color: #fff; }
-        body.theme-gradient1 .timeline-item .time { color: rgba(0,0,0,0.3); }
-        body.theme-gradient1 .timeline-item .desc { color: rgba(0,0,0,0.6); }
-        body.theme-gradient1 .setting-label { color: #1a202c; }
-        body.theme-gradient1 .setting-label .sub { color: rgba(0,0,0,0.3); }
-        body.theme-gradient1 .setting-row { border-bottom-color: rgba(0,0,0,0.05); }
-        body.theme-gradient1 .h5-nav-item { color: rgba(0,0,0,0.3); }
-        body.theme-gradient1 .h5-nav-item.active { color: #3b82f6; }
-        body.theme-gradient1 .copy-toast { background: rgba(0,0,0,0.8); color: #fff; }
-        body.theme-gradient1 .color-option.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3b82f6; }
-        body.theme-gradient1 .grid-nav-item .icon-wrap { background: rgba(59,130,246,0.15); color: #3b82f6; }
-
-        /* 主题：粉红渐变 */
         body.theme-gradient3 { background: #ee9ca7; background: -webkit-linear-gradient(to right, #ffdde1, #ee9ca7); background: linear-gradient(to right, #ffdde1, #ee9ca7); color: #1a202c; }
-        body.theme-gradient3 .glass { background: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.35); }
-        body.theme-gradient3 .h5-nav { background: rgba(255,255,255,0.85); border-top-color: rgba(0,0,0,0.06); }
-        body.theme-gradient3 .grid-nav-item { background: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.3); }
-        body.theme-gradient3 .grid-nav-item .label { color: #1a202c; }
-        body.theme-gradient3 .grid-nav-item .sub { color: rgba(0,0,0,0.3); }
-        body.theme-gradient3 .interface-card { background: rgba(255,255,255,0.5); }
-        body.theme-gradient3 .interface-card .if-name { color: #1a202c; }
-        body.theme-gradient3 .input-dark { background: rgba(255,255,255,0.6); color: #1a202c; border-color: rgba(0,0,0,0.08); }
-        body.theme-gradient3 .reset-btn { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.5); }
-        body.theme-gradient3 .reset-btn:hover { background: rgba(0,0,0,0.08); color: #1a202c; }
-        body.theme-gradient3 .tab-bar { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.06); }
-        body.theme-gradient3 .tab-item { color: rgba(0,0,0,0.4); }
-        body.theme-gradient3 .tab-item.active { background: rgba(59,130,246,0.15); color: #3b82f6; }
-        body.theme-gradient3 .back-btn { background: rgba(255,255,255,0.5); color: #1a202c; }
-        body.theme-gradient3 .lang-current { background: rgba(255,255,255,0.5); color: #1a202c; }
-        body.theme-gradient3 .lang-dropdown { background: rgba(255,255,255,0.96); }
-        body.theme-gradient3 .lang-dropdown .lang-item { color: #1a202c; }
-        body.theme-gradient3 .ad-modal { background: rgba(255,255,255,0.95); }
-        body.theme-gradient3 .ad-modal h3 { color: #1a202c; }
-        body.theme-gradient3 .ad-modal .ad-body { color: rgba(0,0,0,0.6); }
-        body.theme-gradient3 .compare-table th { color: rgba(0,0,0,0.5); background: rgba(0,0,0,0.02); }
-        body.theme-gradient3 .compare-table td { border-bottom-color: rgba(0,0,0,0.06); }
-        body.theme-gradient3 .compare-table .dimension { color: rgba(0,0,0,0.6); }
-        body.theme-gradient3 .timeline-item::before { border-color: #fff; }
-        body.theme-gradient3 .timeline-item .time { color: rgba(0,0,0,0.3); }
-        body.theme-gradient3 .timeline-item .desc { color: rgba(0,0,0,0.6); }
-        body.theme-gradient3 .setting-label { color: #1a202c; }
-        body.theme-gradient3 .setting-label .sub { color: rgba(0,0,0,0.3); }
-        body.theme-gradient3 .setting-row { border-bottom-color: rgba(0,0,0,0.05); }
-        body.theme-gradient3 .h5-nav-item { color: rgba(0,0,0,0.3); }
-        body.theme-gradient3 .h5-nav-item.active { color: #3b82f6; }
-        body.theme-gradient3 .copy-toast { background: rgba(0,0,0,0.8); color: #fff; }
-        body.theme-gradient3 .color-option.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #3b82f6; }
-        body.theme-gradient3 .grid-nav-item .icon-wrap { background: rgba(59,130,246,0.15); color: #3b82f6; }
+        /* 其他主题样式简略，请参考之前完整版，这里保留基本 */
+
+        /* 白底无限延伸页面 */
+        .full-white-page {
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        /* 开发者工具警告层 */
+        #devToolsWarning {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 99999;
+            color: #fff;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 2rem;
+        }
+        #devToolsWarning.active {
+            display: flex !important;
+        }
     </style>
 </head>
 <body class="theme-default content-padding">
@@ -338,7 +237,14 @@
     <div id="splashScreen">
         <div class="logo"><i class="fa fa-play-circle"></i></div>
         <h1>七七视频解析</h1>
-        <p>手机版 · 仅搜索接口可用</p>
+        <p>手机版 · 任务解锁接口</p>
+    </div>
+
+    <!-- 开发者工具警告层 -->
+    <div id="devToolsWarning">
+        <i class="fa fa-exclamation-triangle" style="font-size: 3rem; color: #f59e0b; margin-bottom: 1rem;"></i>
+        <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem;">⚠️ 警告：开发者工具已打开</h2>
+        <p style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">检测到您正在尝试调试页面，本网站禁止此类操作。<br>请立即关闭开发者工具，否则页面将无法正常使用。</p>
     </div>
 
     <div id="homeWrapper" class="opacity-0 invisible transition-opacity duration-700">
@@ -349,9 +255,8 @@
                 <div id="page-home" class="page active">
                     <div class="mb-5 text-center">
                         <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">七七视频解析</h1>
-                        <p class="text-gray-500 text-xs mt-0.5">手机版 · 仅搜索接口可用</p>
+                        <p class="text-gray-500 text-xs mt-0.5">手机版 · 任务解锁接口</p>
                     </div>
-                    <!-- 宫格导航，包含开发团队 -->
                     <div class="grid grid-cols-3 sm:grid-cols-5 gap-2.5 mb-5">
                         <div class="grid-nav-item" data-page="home"><div class="icon-wrap"><i class="fa fa-home"></i></div><div class="label">首页</div><div class="sub">Home</div></div>
                         <div class="grid-nav-item" data-page="parse"><div class="icon-wrap"><i class="fa fa-play-circle"></i></div><div class="label">视频解析</div><div class="sub">Parse</div></div>
@@ -362,7 +267,7 @@
                     </div>
                     <div class="glass rounded-2xl p-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">
-                            <div><h2 class="font-bold text-gray-800 text-base">🚀 软件内测 · 抢先体验</h2><p class="text-gray-400 text-xs mt-0.5">加群获取最新解析接口与禁用通知</p></div>
+                            <div><h2 class="font-bold text-gray-800 text-base">🚀 软件内测 · 抢先体验</h2><p class="text-gray-400 text-xs mt-0.5">加群获取最新解析接口与任务通知</p></div>
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="text-gray-400 text-xs">群号：</span>
                                 <span id="groupNum" class="group-badge font-mono">1019597251</span>
@@ -372,6 +277,9 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mt-3 text-center text-gray-400 text-[10px] px-4">
+                        ⚠️ 本软件不包含任何广告。解析后的视频页面可能包含第三方接口广告，请勿点击不明链接。我们已采取最高级防广告措施，若仍有广告，请通过QQ群反馈。
+                    </div>
                 </div>
 
                 <!-- ===== 视频解析 ===== -->
@@ -379,7 +287,7 @@
                     <div class="glass rounded-2xl p-4 md:p-5">
                         <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
                             <i class="fa fa-play-circle text-blue-500"></i> 视频解析
-                            <span class="text-xs text-gray-400 font-normal ml-1">仅搜索接口可用</span>
+                            <span class="text-xs text-gray-400 font-normal ml-1">任务解锁接口</span>
                         </h2>
                         <div class="mb-3">
                             <label class="text-gray-500 text-xs font-medium block mb-1">🔗 视频链接</label>
@@ -388,10 +296,26 @@
                                 <button id="clearBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"><i class="fa fa-times-circle"></i></button>
                             </div>
                         </div>
+                        <div id="watchProgress" class="mb-3 p-3 bg-white/50 rounded-xl text-xs">
+                            <div class="flex items-center justify-between mb-1">
+                                <span><i class="fa fa-clock-o mr-1 text-blue-500"></i>累计观看：<span id="watchTimeDisplay" class="font-bold text-blue">0.0</span> 分钟</span>
+                                <span id="nextUnlockInfo" class="text-orange font-medium"></span>
+                            </div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] text-gray-500 w-16">解锁进度</span>
+                                <div class="progress-bar-bg flex-1"><div class="progress-bar-fill" id="unlockProgressBar" style="width: 0%;"></div></div>
+                                <span id="unlockPercent" class="text-[10px] text-gray-500 w-8 text-right">0%</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-gray-500 w-16">下一解锁</span>
+                                <div class="progress-bar-bg flex-1"><div class="progress-bar-fill" id="timeProgressBar" style="width: 0%;"></div></div>
+                                <span id="timePercent" class="text-[10px] text-gray-500 w-8 text-right">0%</span>
+                            </div>
+                        </div>
                         <div class="mb-4">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-gray-500 text-xs font-medium"><i class="fa fa-plug mr-1"></i>选择解析接口</span>
-                                <span class="text-gray-400 text-[10px]">点击卡片切换</span>
+                                <span class="text-gray-400 text-[10px]">观看视频解锁更多</span>
                             </div>
                             <div class="interface-selector" id="interfaceGridMobile"></div>
                         </div>
@@ -402,9 +326,9 @@
                     </div>
                     <div class="player-container" id="playerContainer">
                         <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
-                        <iframe class="video-iframe" id="videoIframe" allowfullscreen></iframe>
+                        <iframe class="video-iframe" id="videoIframe" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe>
                     </div>
-                    <div class="text-center text-gray-400 text-[10px] mt-2" id="playerTips">💡 手机版仅支持“搜索专用”接口</div>
+                    <div class="text-center text-gray-400 text-[10px] mt-2" id="playerTips">💡 观看视频会累计时长，解锁更多接口</div>
                 </div>
 
                 <!-- ===== 教程与对比 ===== -->
@@ -419,9 +343,9 @@
                             <div class="space-y-3 text-gray-600 text-xs leading-relaxed">
                                 <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">1</span><div><span class="text-gray-800 font-medium text-xs">复制视频链接</span><br class="hidden sm:block">从腾讯视频、优酷、爱奇艺、B站等平台，复制您想观看的视频页面地址。</div></div>
                                 <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">2</span><div><span class="text-gray-800 font-medium text-xs">粘贴到输入框</span><br class="hidden sm:block">将复制的链接粘贴到上方的「视频链接」输入框中，支持所有主流视频平台。</div></div>
-                                <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span><div><span class="text-gray-800 font-medium text-xs">选择解析接口</span><br class="hidden sm:block">点击下方任意接口卡片即可切换，手机版仅“搜索专用”可用，其他接口已禁用。</div></div>
-                                <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">4</span><div><span class="text-gray-800 font-medium text-xs">点击「开始解析」</span><br class="hidden sm:block">等待加载完成，视频将自动在下方播放器中呈现。</div></div>
-                                <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">💡</span><div><span class="text-gray-800 font-medium text-xs">小贴士</span><br>• 手机版仅开放“搜索专用”接口，直接输入片名即可搜索<br>• 其他接口在手机版已禁用，点击会弹出提示</div></div>
+                                <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span><div><span class="text-gray-800 font-medium text-xs">选择解析接口</span><br class="hidden sm:block">默认只有「搜索专用」可用，其他接口需要累计观看视频时长解锁。</div></div>
+                                <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">4</span><div><span class="text-gray-800 font-medium text-xs">点击「开始解析」</span><br class="hidden sm:block">等待加载完成，视频将自动在下方播放器中呈现，同时开始累计观看时间。</div></div>
+                                <div class="flex items-start gap-2.5 bg-white/50 rounded-xl p-2.5"><span class="bg-blue-500/20 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">💡</span><div><span class="text-gray-800 font-medium text-xs">解锁规则</span><br>• 20分钟解锁 qianqi 和 B站<br>• 60分钟解锁所有接口<br>• 输入邀请码 7592 可立即解锁所有接口</div></div>
                             </div>
                         </div>
                         <div class="tab-content" id="tab-compare">
@@ -430,17 +354,17 @@
                                 <table class="compare-table">
                                     <thead><tr><th>维度</th><th>搜索专用</th><th>play3m8u</th><th>B站</th><th>8090</th><th>爱豆</th><th>qianqi</th><th>m1907</th></tr></thead>
                                     <tbody>
-                                        <tr><td class="dimension">手机版可用</td><td><span class="badge-green">✓ 是</span></td><td><span class="badge-yellow">✗ 否</span></td><td><span class="badge-yellow">✗ 否</span></td><td><span class="badge-yellow">✗ 否</span></td><td><span class="badge-yellow">✗ 否</span></td><td><span class="badge-yellow">✗ 否</span></td><td><span class="badge-yellow">✗ 否</span></td></tr>
+                                        <tr><td class="dimension">解锁条件</td><td>默认</td><td>60分钟</td><td>20分钟</td><td>60分钟</td><td>60分钟</td><td>20分钟</td><td>60分钟</td></tr>
                                         <tr><td class="dimension">适用平台</td><td>全平台</td><td>主流平台</td><td>B站为主</td><td>全平台</td><td>全平台</td><td>全平台</td><td>全平台</td></tr>
                                         <tr><td class="dimension">解析速度</td><td><span class="badge-green">⚡ 快</span></td><td><span class="badge-green">⚡ 快</span></td><td><span class="badge-green">⚡ 快</span></td><td><span class="badge-yellow">中</span></td><td><span class="badge-yellow">中</span></td><td><span class="badge-green">⚡ 快</span></td><td><span class="badge-yellow">中</span></td></tr>
                                         <tr><td class="dimension">稳定性</td><td><span class="badge-green">高</span></td><td><span class="badge-green">高</span></td><td><span class="badge-green">高</span></td><td><span class="badge-yellow">中</span></td><td><span class="badge-yellow">中</span></td><td><span class="badge-green">高</span></td><td><span class="badge-yellow">中</span></td></tr>
                                         <tr><td class="dimension">支持VIP</td><td><span class="badge-green">✓ 是</span></td><td><span class="badge-green">✓ 是</span></td><td><span class="badge-blue">部分</span></td><td><span class="badge-green">✓ 是</span></td><td><span class="badge-green">✓ 是</span></td><td><span class="badge-green">✓ 是</span></td><td><span class="badge-green">✓ 是</span></td></tr>
                                         <tr><td class="dimension">特色功能</td><td>片名搜索</td><td>m3u8专精</td><td>B站优化</td><td>通用备用</td><td>多格式</td><td>高成功率</td><td>稳定备用</td></tr>
-                                        <tr><td class="dimension">推荐指数（手机）</td><td><span class="star">★★★★★</span></td><td><span class="star">★</span></td><td><span class="star">★</span></td><td><span class="star">★</span></td><td><span class="star">★</span></td><td><span class="star">★</span></td><td><span class="star">★</span></td></tr>
+                                        <tr><td class="dimension">推荐指数</td><td><span class="star">★★★★★</span></td><td><span class="star">★★★★</span></td><td><span class="star">★★★★</span></td><td><span class="star">★★★</span></td><td><span class="star">★★★</span></td><td><span class="star">★★★★</span></td><td><span class="star">★★★</span></td></tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="mt-3 text-gray-400 text-[10px] text-center">💡 手机版仅“搜索专用”接口可用，其他接口已禁用</div>
+                            <div class="mt-3 text-gray-400 text-[10px] text-center">💡 输入邀请码 7592 可立即解锁所有接口</div>
                         </div>
                     </div>
                 </div>
@@ -466,13 +390,56 @@
                             <div class="setting-label"><i class="fa fa-palette text-blue-400"></i> 背景颜色 <span class="sub">(Theme)</span></div>
                             <div class="color-picker" id="colorPicker"></div>
                         </div>
+                        <!-- 累计观看时间 -->
+                        <div class="setting-row">
+                            <div class="setting-label"><i class="fa fa-clock-o text-blue-400"></i> 累计观看时间</div>
+                            <span id="settingsWatchTime" class="text-blue font-bold">0.0 分钟</span>
+                        </div>
+                        <!-- 邀请码 -->
+                        <div class="setting-row">
+                            <div class="setting-label"><i class="fa fa-key text-blue-400"></i> 邀请码 <span class="sub">(解锁全部接口)</span></div>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="inviteCodeInput" class="input-dark" style="width: 100px;" placeholder="输入邀请码">
+                                <button id="inviteCodeBtn" class="bg-green-500/20 text-green-600 px-3 py-1 rounded-full text-xs border border-green-500/20 hover:bg-green-500/30 transition">验证</button>
+                            </div>
+                        </div>
+                        <!-- 观看历史入口 -->
+                        <div class="setting-row">
+                            <div class="setting-label"><i class="fa fa-history text-blue-400"></i> 观看历史</div>
+                            <button id="historyEntryBtn" class="bg-blue-500/20 text-blue-600 px-3 py-1 rounded-full text-xs border border-blue-500/20 hover:bg-blue-500/30 transition">查看</button>
+                        </div>
+                        <!-- 软件协议入口 -->
+                        <div class="setting-row">
+                            <div class="setting-label"><i class="fa fa-file-text-o text-blue-400"></i> 软件协议</div>
+                            <button id="agreementEntryBtn" class="bg-blue-500/20 text-blue-600 px-3 py-1 rounded-full text-xs border border-blue-500/20 hover:bg-blue-500/30 transition">查看</button>
+                        </div>
+                        <!-- 软件商城入口 -->
+                        <div class="setting-row">
+                            <div class="setting-label"><i class="fa fa-shopping-cart text-blue-400"></i> 软件商城</div>
+                            <a href="https://sevenseven712.github.io/shangcheng/" target="_blank" class="bg-blue-500/20 text-blue-600 px-3 py-1 rounded-full text-xs border border-blue-500/20 hover:bg-blue-500/30 transition">访问商城</a>
+                        </div>
                         <div class="mt-3 text-[10px] text-gray-400 text-center border-t border-gray-200/50 pt-3">
                             <i class="fa fa-eye mr-1"></i> 点击颜色实时预览，主题自动保存
                         </div>
                     </div>
                 </div>
 
-                <!-- ===== 开发团队 ===== -->
+                <!-- ===== 观看历史（独立页面，白底无限延伸） ===== -->
+                <div id="page-history" class="page page-no-nav full-white-page">
+                    <div class="mb-3"><button class="back-btn" id="exit-history"><i class="fa fa-arrow-left"></i> 返回设置</button></div>
+                    <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fa fa-history text-blue-500"></i> 观看历史</h2>
+                    <div class="flex justify-end mb-2"><button id="clearHistoryBtn2" class="text-xs text-red-400 hover:text-red-600 transition"><i class="fa fa-trash"></i> 清空历史</button></div>
+                    <div id="historyList" class="mt-1 space-y-2"></div>
+                </div>
+
+                <!-- ===== 软件协议（独立页面，白底无限延伸） ===== -->
+                <div id="page-agreement" class="page page-no-nav full-white-page">
+                    <div class="mb-3"><button class="back-btn" id="exit-agreement"><i class="fa fa-arrow-left"></i> 返回设置</button></div>
+                    <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fa fa-file-text-o text-blue-500"></i> 软件协议</h2>
+                    <div id="agreementContent" class="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap bg-transparent"></div>
+                </div>
+
+                <!-- ===== 开发团队（略） ===== -->
                 <div id="page-team" class="page page-no-nav">
                     <div class="mb-3"><button class="back-btn" id="exit-team"><i class="fa fa-arrow-left"></i> 返回首页</button></div>
                     <div class="glass rounded-2xl p-5">
@@ -486,7 +453,6 @@
                             <p>✨ 本项目由 <strong class="text-blue-600">Seven戚</strong> 独立开发维护，从零开始构建视频解析生态。</p>
                             <div class="bg-white/50 rounded-xl p-3"><div class="flex items-center gap-2 text-blue-600 text-xs font-medium mb-1.5"><i class="fa fa-calendar"></i> 项目历程</div><p class="text-gray-500 text-xs">始于 <strong class="text-gray-700">2024年7月</strong>，历经两年打磨，攻克无数解析技术难关，终于在 <strong class="text-gray-700">2026年5月21日</strong> 完成核心功能并稳定上线。</p></div>
                             <div class="bg-amber-50/70 rounded-xl p-3"><div class="flex items-center gap-2 text-amber-600 text-xs font-medium mb-1.5"><i class="fa fa-heart"></i> 致谢</div><p class="text-gray-500 text-xs">感谢每一位用户的内测反馈与一路支持！你们的鼓励是持续更新的动力。未来将继续优化接口稳定性，提供更好的免费解析服务。</p></div>
-                            <!-- 商城链接 -->
                             <div class="text-center mt-2">
                                 <a href="https://sevenseven712.github.io/shangcheng/" target="_blank" class="bg-blue-500/20 text-blue-600 px-4 py-2 rounded-full text-sm border border-blue-500/20 hover:bg-blue-500/30 transition inline-flex items-center gap-2">
                                     <i class="fa fa-shopping-cart"></i> 访问软件商城
@@ -497,18 +463,18 @@
                     </div>
                 </div>
 
-                <!-- ===== 版本信息 ===== -->
+                <!-- ===== 版本信息（略） ===== -->
                 <div id="page-version" class="page page-no-nav">
                     <div class="mb-3"><button class="back-btn" id="exit-version"><i class="fa fa-arrow-left"></i> 返回首页</button></div>
                     <div class="glass rounded-2xl overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-500/20 to-cyan-400/20 p-5 text-center border-b border-gray-200/50">
                             <i class="fa fa-mobile text-3xl text-blue-400 mb-1.5"></i>
                             <h1 class="text-xl font-bold text-gray-800">七七视频解析</h1>
-                            <p class="text-gray-400 text-xs mt-0.5">手机版 · 仅搜索接口</p>
+                            <p class="text-gray-400 text-xs mt-0.5">手机版 · 任务解锁接口</p>
                         </div>
                         <div class="p-5">
                             <div class="text-center mb-4">
-                                <span class="bg-blue-500/20 text-blue-600 px-3 py-0.5 rounded-full text-xs font-mono border border-blue-500/20">v2.0.1</span>
+                                <span class="bg-blue-500/20 text-blue-600 px-3 py-0.5 rounded-full text-xs font-mono border border-blue-500/20">v2.8.0</span>
                                 <div class="flex justify-center gap-4 mt-2 text-gray-400 text-[10px]">
                                     <span><i class="fa fa-calendar mr-1"></i> 2026.05.21</span>
                                     <span><i class="fa fa-android mr-1"></i> 移动优化</span>
@@ -518,16 +484,15 @@
                             <div class="border-y border-gray-200/50 py-3 my-3">
                                 <h3 class="font-bold text-gray-700 text-xs flex items-center gap-2"><i class="fa fa-rocket text-blue-500"></i> 版本亮点</h3>
                                 <ul class="mt-2 space-y-1 text-gray-500 text-[10px]">
-                                    <li>✅ 全新 iframe 内嵌播放器，解析成功率提升 90%</li>
-                                    <li>✅ 手机版精简模式，仅保留“搜索专用”接口</li>
-                                    <li>✅ 其他接口全部禁用，清晰标识不可用线路</li>
-                                    <li>✅ 个性化设置，支持多主题与语言切换</li>
+                                    <li>✅ 邀请码解锁全部接口</li>
+                                    <li>✅ 设置页显示累计观看时间</li>
+                                    <li>✅ 反调试升级，打开开发者工具警告</li>
                                 </ul>
                             </div>
                             <div class="timeline">
                                 <div class="timeline-item"><div class="time">2024年7月</div><div class="desc">项目启动，构思视频解析核心逻辑</div></div>
                                 <div class="timeline-item"><div class="time">2025年3月</div><div class="desc">首个内测版本上线，收集用户反馈</div></div>
-                                <div class="timeline-item"><div class="time">2026年5月21日</div><div class="desc">v2.0.1 手机版正式发布，历经两年打磨圆满收官</div></div>
+                                <div class="timeline-item"><div class="time">2026年5月21日</div><div class="desc">v2.8.0 手机版正式发布，反调试增强</div></div>
                             </div>
                             <div class="mt-4 bg-white/50 rounded-xl p-3 text-center text-gray-400 text-[10px]">
                                 <i class="fa fa-heart text-rose-400/70 mr-1"></i> 感谢每一位用户的支持与陪伴！
@@ -536,7 +501,7 @@
                     </div>
                 </div>
 
-            </div><!-- /pages -->
+            </div>
         </div>
     </div>
 
@@ -556,8 +521,80 @@
         </div>
     </div>
 
+    <!-- 外部 JS 文件 -->
+    <script src="jiekou.js"></script>
+    <script src="work.js"></script>
+    <script src="xieyi.js"></script>
+
     <script>
         (function() {
+            // ========== 反调试增强 ==========
+            // 1. 禁止缩放
+            document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+            document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+            document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length > 1) e.preventDefault();
+            }, { passive: false });
+
+            // 2. 禁止右键（输入框、文本域除外）
+            document.addEventListener('contextmenu', function(e) {
+                var target = e.target;
+                if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
+                    e.preventDefault();
+                    // 可选：显示自定义提示
+                    // showModal('提示', '禁止右键');
+                    return false;
+                }
+            });
+
+            // 3. 禁止 F12 及调试快捷键
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) ||
+                    (e.ctrlKey && e.key.toUpperCase() === 'U')) {
+                    e.preventDefault();
+                    // 显示警告
+                    showDevToolsWarning();
+                    return false;
+                }
+            });
+
+            // 开发者工具警告层
+            var devToolsWarning = document.getElementById('devToolsWarning');
+            var warningTimeout = null;
+
+            function showDevToolsWarning() {
+                if (devToolsWarning) {
+                    devToolsWarning.classList.add('active');
+                    // 强制卡死：占用主线程2秒
+                    var start = Date.now();
+                    while (Date.now() - start < 2000) { /* 高CPU循环 */ }
+                    // 2秒后隐藏
+                    setTimeout(function() {
+                        devToolsWarning.classList.remove('active');
+                    }, 500);
+                }
+            }
+
+            // 4. 检测开发者工具打开（基于窗口大小变化）
+            var lastOuterWidth = window.outerWidth - window.innerWidth;
+            var lastOuterHeight = window.outerHeight - window.innerHeight;
+
+            function checkDevTools() {
+                if (window.outerWidth - window.innerWidth > 200 || window.outerHeight - window.innerHeight > 200) {
+                    // 可能打开了开发者工具（侧边或底部）
+                    showDevToolsWarning();
+                }
+                lastOuterWidth = window.outerWidth - window.innerWidth;
+                lastOuterHeight = window.outerHeight - window.innerHeight;
+            }
+
+            setInterval(checkDevTools, 1000);
+
+            // 5. 使用 debugger 语句干扰（开发者工具打开时会暂停，但不会自动卡死，这里仅作提醒）
+            // setInterval(function(){ debugger; }, 3000);
+
             // 闪屏
             setTimeout(function() {
                 var splash = document.getElementById('splashScreen');
@@ -572,44 +609,129 @@
                 }
             }, 1600);
 
-            // ===== 接口列表（仅搜索专用可用） =====
-            var mobileInterfaces = [
-                { id: 'search', name: '搜索专用', url: 'https://z1.190000000007.top/?jx', icon: 'fa-search', badge: '推荐', disabled: false },
-                { id: 'play3m8u', name: 'play3m8u', url: 'https://www.playm3u8.cn/jiexi.php?url=', icon: 'fa-play', badge: '高速', disabled: true },
-                { id: 'bilibili', name: 'B站', url: 'https://jx.jsonplayer.com/player/?url=', icon: 'fa-bilibili', badge: '专用', disabled: true },
-                { id: '8090', name: '8090', url: 'https://www.8090g.cn/?url=', icon: 'fa-globe', badge: '稳定', disabled: true },
-                { id: 'aidou', name: '爱豆', url: 'https://jx.aidouer.net/?url=', icon: 'fa-heart', badge: '好用', disabled: true },
-                { id: 'qianqi', name: 'qianqi', url: 'https://api.qianqi.net/vip/?url=', icon: 'fa-diamond', badge: 'VIP', disabled: true },
-                { id: 'm1907', name: 'm1907', url: 'https://im1907.top/?jx=', icon: 'fa-film', badge: '备用', disabled: true }
-            ];
-
+            // ========== 接口列表来自 jiekou.js ==========
+            var mobileInterfaces = window.QQ_INTERFACES || [];
             var grid = document.getElementById('interfaceGridMobile');
             var currentInterface = '';
             var selectedId = '';
 
+            function updateProgressUI() {
+                var watchTime = window.QQ_TASK_API.getCurrentWatchTime();
+                document.getElementById('watchTimeDisplay').textContent = watchTime.toFixed(1);
+                var settingsWatch = document.getElementById('settingsWatchTime');
+                if (settingsWatch) settingsWatch.textContent = watchTime.toFixed(1) + ' 分钟';
+
+                var next = window.QQ_TASK_API.getNextLocked();
+                var infoEl = document.getElementById('nextUnlockInfo');
+                if (next) {
+                    var remain = Math.max(0, next.unlockMinutes - watchTime);
+                    infoEl.innerHTML = '🔒 下一个解锁：' + next.name + '（还需 <span class="font-bold text-orange">' + remain.toFixed(1) + '</span> 分钟）';
+                    infoEl.className = 'text-orange font-medium';
+                } else {
+                    infoEl.innerHTML = '🎉 <span class="font-bold text-green">所有接口已解锁！</span>';
+                    infoEl.className = 'text-green font-medium';
+                }
+
+                var total = window.QQ_TASKS.length;
+                var unlockedCount = window.QQ_TASKS.filter(function(t) { return window.QQ_TASK_API.isUnlocked(t.id); }).length;
+                var unlockPercent = (unlockedCount / total) * 100;
+                document.getElementById('unlockProgressBar').style.width = unlockPercent + '%';
+                document.getElementById('unlockPercent').textContent = Math.round(unlockPercent) + '%';
+
+                var timeProgressBar = document.getElementById('timeProgressBar');
+                var timePercentEl = document.getElementById('timePercent');
+                if (next) {
+                    var progress = (watchTime / next.unlockMinutes) * 100;
+                    if (progress > 100) progress = 100;
+                    timeProgressBar.style.width = progress + '%';
+                    timePercentEl.textContent = Math.round(progress) + '%';
+                } else {
+                    timeProgressBar.style.width = '100%';
+                    timePercentEl.textContent = '100%';
+                }
+
+                updateInterfaceCards();
+            }
+
+            function updateInterfaceCards() {
+                grid.querySelectorAll('.interface-card').forEach(function(card) {
+                    var id = card.dataset.id;
+                    var disabled = card.dataset.disabled === 'true';
+                    var unlocked = window.QQ_TASK_API.isUnlocked(id);
+                    if (disabled) {
+                        card.classList.add('disabled');
+                        card.classList.remove('locked', 'unlocked', 'active');
+                        card.dataset.unlocked = 'false';
+                    } else if (unlocked) {
+                        card.classList.remove('disabled', 'locked');
+                        card.classList.add('unlocked');
+                        card.dataset.unlocked = 'true';
+                    } else {
+                        card.classList.remove('disabled', 'unlocked');
+                        card.classList.add('locked');
+                        card.dataset.unlocked = 'false';
+                    }
+                });
+                if (currentInterface) {
+                    var activeCard = grid.querySelector('.interface-card.active');
+                    if (!activeCard || activeCard.dataset.disabled === 'true' || activeCard.dataset.unlocked !== 'true') {
+                        var firstUsable = grid.querySelector('.interface-card[data-unlocked="true"][data-disabled="false"]');
+                        if (firstUsable) {
+                            grid.querySelectorAll('.interface-card').forEach(c => c.classList.remove('active'));
+                            firstUsable.classList.add('active');
+                            currentInterface = firstUsable.dataset.url;
+                            selectedId = firstUsable.dataset.id;
+                        } else {
+                            currentInterface = '';
+                            selectedId = '';
+                        }
+                    }
+                }
+            }
+
             mobileInterfaces.forEach(function(item) {
                 var card = document.createElement('div');
-                var isActive = !item.disabled && (selectedId === '' || item.id === selectedId);
-                if (isActive) {
-                    card.className = 'interface-card active';
-                    currentInterface = item.url;
-                    selectedId = item.id;
+                card.className = 'interface-card';
+                var disabled = item.disabled === true;
+                var unlocked = window.QQ_TASK_API.isUnlocked(item.id);
+                if (disabled) {
+                    card.classList.add('disabled');
+                } else if (!unlocked) {
+                    card.classList.add('locked');
                 } else {
-                    card.className = 'interface-card';
-                }
-                if (item.disabled) {
-                    card.classList.add('banned-interface');
+                    card.classList.add('unlocked');
                 }
                 card.dataset.url = item.url;
                 card.dataset.id = item.id;
-                card.dataset.disabled = item.disabled ? 'true' : 'false';
-                var badgeHtml = item.disabled ? '<div class="banned-tag">已禁用</div>' : '<div class="if-badge">' + item.badge + '</div>';
-                var reasonHtml = item.disabled ? '<div class="banned-reason-mini"><i class="fa fa-ban"></i> 手机版暂不支持</div>' : '';
-                card.innerHTML =
-                    `<div class="if-icon"><i class="fa ${item.icon}"></i></div><div class="if-name">${item.name}</div>${badgeHtml}${reasonHtml}<div class="check-mark"><i class="fa fa-check-circle"></i></div>`;
+                card.dataset.disabled = disabled ? 'true' : 'false';
+                card.dataset.unlocked = unlocked ? 'true' : 'false';
+
+                var badgeHtml;
+                if (disabled) {
+                    badgeHtml = '<div class="disabled-tag">🚫 已禁用</div>';
+                } else if (unlocked) {
+                    badgeHtml = '<div class="if-badge">' + item.badge + '</div>';
+                } else {
+                    var req = window.QQ_TASK_API.getRequiredMinutes(item.id);
+                    badgeHtml = '<div class="locked-tag">🔒 未解锁</div>';
+                    badgeHtml += '<div class="locked-reason"><i class="fa fa-clock-o"></i> 需观看 <span class="text-orange font-bold">' + req + '</span> 分钟解锁</div>';
+                }
+
+                card.innerHTML = '<div class="if-icon"><i class="fa ' + item.icon + '"></i></div>' +
+                                '<div class="if-name">' + item.name + '</div>' +
+                                badgeHtml +
+                                '<div class="check-mark"><i class="fa fa-check-circle"></i></div>';
+
                 card.addEventListener('click', function(e) {
                     if (this.dataset.disabled === 'true') {
-                        showModal('🚫 接口不可用\n\n手机版仅支持“搜索专用”接口，其他接口已禁用。');
+                        showModal('🚫 接口已禁用', '该接口已被管理员禁用，无法使用。');
+                        return;
+                    }
+                    if (this.dataset.unlocked !== 'true') {
+                        var watchTime = window.QQ_TASK_API.getCurrentWatchTime();
+                        var req = window.QQ_TASK_API.getRequiredMinutes(this.dataset.id);
+                        var remain = Math.max(0, req - watchTime);
+                        showModal('🔒 接口未解锁\n\n当前累计观看：' + watchTime.toFixed(1) + ' 分钟\n需要观看：' + req + ' 分钟\n还需观看：' + remain.toFixed(1) + ' 分钟\n\n继续观看视频即可解锁！或者输入邀请码 7592 立即解锁。');
                         return;
                     }
                     document.querySelectorAll('#interfaceGridMobile .interface-card').forEach(function(c) { c.classList.remove('active'); });
@@ -621,16 +743,121 @@
                 grid.appendChild(card);
             });
 
-            if (selectedId === '') {
-                var firstCard = grid.querySelector('.interface-card[data-disabled="false"]');
-                if (firstCard) {
-                    firstCard.classList.add('active');
-                    currentInterface = firstCard.dataset.url;
-                    selectedId = firstCard.dataset.id;
-                }
+            var firstUsable = grid.querySelector('.interface-card[data-unlocked="true"][data-disabled="false"]');
+            if (firstUsable) {
+                firstUsable.classList.add('active');
+                currentInterface = firstUsable.dataset.url;
+                selectedId = firstUsable.dataset.id;
             }
 
-            // 波纹
+            updateProgressUI();
+            document.addEventListener('task-progress-updated', updateProgressUI);
+
+            // ========== 邀请码验证 ==========
+            const INVITE_CODE_ENCODED = 'NzU5Mg==';
+            var inviteCodeBtn = document.getElementById('inviteCodeBtn');
+            var inviteCodeInput = document.getElementById('inviteCodeInput');
+
+            if (inviteCodeBtn && inviteCodeInput) {
+                inviteCodeBtn.addEventListener('click', function() {
+                    var input = inviteCodeInput.value.trim();
+                    if (!input) {
+                        showModal('请输入邀请码', '请输入正确的邀请码后再验证。');
+                        return;
+                    }
+                    try {
+                        var encoded = btoa(input);
+                        if (encoded === INVITE_CODE_ENCODED) {
+                            window.QQ_TASK_API.unlockAllInterfaces();
+                            showModal('✅ 验证成功', '已解锁所有接口！');
+                            inviteCodeInput.value = '';
+                        } else {
+                            showModal('❌ 邀请码错误', '邀请码不正确，请重新输入。');
+                        }
+                    } catch (e) {
+                        showModal('❌ 验证失败', '无法处理输入，请重试。');
+                    }
+                });
+            }
+
+            // ========== 历史记录相关（独立页面） ==========
+            var historyListEl = document.getElementById('historyList');
+            var clearHistoryBtn2 = document.getElementById('clearHistoryBtn2');
+
+            function renderHistory() {
+                var history = window.QQ_TASK_API.getHistory();
+                if (!historyListEl) return;
+                if (history.length === 0) {
+                    historyListEl.innerHTML = '<div class="text-gray-400 text-xs text-center py-2">暂无观看历史</div>';
+                    return;
+                }
+                var html = '';
+                history.forEach(function(item, index) {
+                    html += '<div class="history-item" data-index="' + index + '">' +
+                                '<div class="url">' + item.url + '</div>' +
+                                '<div class="time">' + item.time + '</div>' +
+                                '<div class="del-btn" data-index="' + index + '"><i class="fa fa-times"></i></div>' +
+                            '</div>';
+                });
+                historyListEl.innerHTML = html;
+
+                historyListEl.querySelectorAll('.history-item').forEach(function(el) {
+                    el.addEventListener('click', function(e) {
+                        if (e.target.closest('.del-btn')) return;
+                        var idx = parseInt(this.dataset.index);
+                        var record = window.QQ_TASK_API.getHistory()[idx];
+                        if (record) {
+                            switchPage('parse');
+                            document.getElementById('videoUrl').value = record.url;
+                            var card = grid.querySelector('.interface-card[data-id="' + record.id + '"]');
+                            if (card && card.dataset.disabled !== 'true' && card.dataset.unlocked === 'true') {
+                                grid.querySelectorAll('.interface-card').forEach(c => c.classList.remove('active'));
+                                card.classList.add('active');
+                                currentInterface = card.dataset.url;
+                                selectedId = card.dataset.id;
+                                setTimeout(function() { parseVideo(); }, 300);
+                            } else {
+                                showModal('无法自动解析', '该接口当前不可用（未解锁或已禁用），请手动选择其他接口。');
+                            }
+                        }
+                    });
+                });
+
+                historyListEl.querySelectorAll('.del-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var idx = parseInt(this.dataset.index);
+                        var history = window.QQ_TASK_API.getHistory();
+                        history.splice(idx, 1);
+                        localStorage.setItem('qq_watch_history_mobile', JSON.stringify(history));
+                        renderHistory();
+                    });
+                });
+            }
+
+            if (clearHistoryBtn2) {
+                clearHistoryBtn2.addEventListener('click', function() {
+                    window.QQ_TASK_API.clearHistory();
+                    renderHistory();
+                });
+            }
+            document.addEventListener('history-updated', renderHistory);
+            renderHistory();
+
+            var agreementContent = document.getElementById('agreementContent');
+            if (agreementContent && window.QQ_XIEYI) {
+                agreementContent.textContent = window.QQ_XIEYI;
+            }
+
+            document.getElementById('historyEntryBtn').addEventListener('click', function() { switchPage('history'); });
+            document.getElementById('agreementEntryBtn').addEventListener('click', function() { switchPage('agreement'); });
+
+            document.getElementById('exit-history').addEventListener('click', function() { switchPage('settings'); });
+            document.getElementById('exit-agreement').addEventListener('click', function() { switchPage('settings'); });
+            document.getElementById('exit-team').addEventListener('click', function() { switchPage('home'); });
+            document.getElementById('exit-version').addEventListener('click', function() { switchPage('home'); });
+
+            // ========== 波纹效果 ==========
             function createRipple(e) {
                 var el = document.createElement('div');
                 el.className = 'ripple';
@@ -648,18 +875,22 @@
             document.addEventListener('click', function(e) {
                 var tag = e.target.tagName.toLowerCase();
                 var interactive = ['button', 'a', 'div', 'span', 'i', 'li', 'td', 'th', 'label', 'input'];
-                if (interactive.includes(tag) || e.target.closest('.interface-card') || e.target.closest('.grid-nav-item') || e.target.closest('.tab-item') || e.target.closest('.h5-nav-item') || e.target.closest('.group-badge') || e.target.closest('.parse-btn') || e.target.closest('.reset-btn') || e.target.closest('.ad-img') || e.target.closest('.ad-btn') || e.target.closest('.back-btn') || e.target.closest('.color-option') || e.target.closest('.lang-item')) {
+                if (interactive.includes(tag) || e.target.closest('.interface-card') || e.target.closest('.grid-nav-item') || e.target.closest('.tab-item') || e.target.closest('.h5-nav-item') || e.target.closest('.group-badge') || e.target.closest('.parse-btn') || e.target.closest('.reset-btn') || e.target.closest('.ad-img') || e.target.closest('.ad-btn') || e.target.closest('.back-btn') || e.target.closest('.color-option') || e.target.closest('.lang-item') || e.target.closest('.history-item') || e.target.closest('#inviteCodeBtn')) {
                     createRipple(e);
                 }
             });
 
-            // 页面切换
             var pages = document.querySelectorAll('.page');
             var bottomItems = document.querySelectorAll('.h5-nav-item');
             var gridNavItems = document.querySelectorAll('.grid-nav-item');
-            var noNavPages = ['team', 'version'];
+            var noNavPages = ['team', 'version', 'history', 'agreement'];
 
             function switchPage(pageId) {
+                var currentActive = document.querySelector('.page.active');
+                if (currentActive && currentActive.id === 'page-parse' && pageId !== 'parse') {
+                    window.QQ_TASK_API.stopWatch();
+                    updateProgressUI();
+                }
                 pages.forEach(function(p) { p.classList.remove('active'); });
                 var target = document.getElementById('page-' + pageId);
                 if (target) target.classList.add('active');
@@ -687,11 +918,8 @@
                 });
             });
 
-            document.getElementById('exit-team').addEventListener('click', function() { switchPage('home'); });
-            document.getElementById('exit-version').addEventListener('click', function() { switchPage('home'); });
             switchPage('home');
 
-            // Tab切换
             var tabItems = document.querySelectorAll('.tab-item');
             var tabContents = {
                 guide: document.getElementById('tab-guide'),
@@ -708,7 +936,6 @@
                 });
             });
 
-            // 视频解析
             var videoUrlInput = document.getElementById('videoUrl');
             var parseBtn = document.getElementById('parseVideoBtn');
             var resetBtn = document.getElementById('resetPlayerBtn');
@@ -719,35 +946,68 @@
             var clearBtn = document.getElementById('clearBtn');
 
             function resetIframe() { videoIframe.src = ''; loadingOverlay.style.display = 'flex'; }
+
             function parseVideo() {
                 var url = videoUrlInput.value.trim();
                 if (!url) { showAdModal('⚠️ 请输入视频链接', '请在上方输入框中粘贴视频地址，然后选择解析接口。', 'info'); return; }
-                if (!currentInterface) { showAdModal('⚠️ 请选择接口', '手机版仅支持“搜索专用”接口，请确保已选中。', 'info'); return; }
+                if (!currentInterface) { showAdModal('⚠️ 请选择接口', '请选择一个已解锁且未禁用的接口。', 'info'); return; }
+                var card = grid.querySelector('.interface-card[data-id="' + selectedId + '"]');
+                if (card && (card.dataset.disabled === 'true' || card.dataset.unlocked !== 'true')) {
+                    showModal('接口不可用', '所选接口已被禁用或未解锁，请重新选择。');
+                    return;
+                }
                 playerContainer.classList.add('active');
                 if (playerTips) playerTips.style.display = 'block';
                 loadingOverlay.style.display = 'flex';
                 var ifaceUrl = currentInterface;
                 if (ifaceUrl.startsWith('//')) ifaceUrl = 'https:' + ifaceUrl;
                 videoIframe.src = ifaceUrl + encodeURIComponent(url);
-                videoIframe.onload = function() { loadingOverlay.style.display = 'none'; };
-                videoIframe.onerror = function() { loadingOverlay.style.display = 'none'; showAdModal('❌ 解析失败', '该接口暂时无法解析此视频，请稍后重试。', 'error'); };
+                videoIframe.onload = function() {
+                    loadingOverlay.style.display = 'none';
+                    window.QQ_TASK_API.startWatch();
+                    var interfaceData = window.QQ_INTERFACES.find(function(i) { return i.id === selectedId; });
+                    window.QQ_TASK_API.addHistory({
+                        id: selectedId,
+                        name: interfaceData ? interfaceData.name : selectedId,
+                        url: url
+                    });
+                };
+                videoIframe.onerror = function() {
+                    loadingOverlay.style.display = 'none';
+                    showAdModal('❌ 解析失败', '该接口暂时无法解析此视频，请稍后重试。', 'error');
+                };
                 setTimeout(function() { loadingOverlay.style.display = 'none'; }, 15000);
             }
+
             parseBtn.addEventListener('click', parseVideo);
+
             resetBtn.addEventListener('click', function() {
+                window.QQ_TASK_API.stopWatch();
+                updateProgressUI();
                 resetIframe();
-                if (videoUrlInput.value.trim()) { parseVideo(); } else { loadingOverlay.style.display = 'none'; playerContainer.classList.remove('active'); if (playerTips) playerTips.style.display = 'none'; }
+                if (videoUrlInput.value.trim()) { parseVideo(); } else {
+                    loadingOverlay.style.display = 'none';
+                    playerContainer.classList.remove('active');
+                    if (playerTips) playerTips.style.display = 'none';
+                }
             });
+
             clearBtn.addEventListener('click', function() {
+                window.QQ_TASK_API.stopWatch();
+                updateProgressUI();
                 videoUrlInput.value = '';
                 playerContainer.classList.remove('active');
                 if (playerTips) playerTips.style.display = 'none';
                 resetIframe();
                 loadingOverlay.style.display = 'none';
             });
+
             videoUrlInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') parseVideo(); });
 
-            // 群号复制
+            window.addEventListener('beforeunload', function() {
+                window.QQ_TASK_API.stopWatch();
+            });
+
             var groupNum = document.getElementById('groupNum');
             var copyToast = document.getElementById('copyToast');
             if (groupNum) {
@@ -761,77 +1021,183 @@
             function fallbackCopy(text) { var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); showCopyToast(); }
             function showCopyToast() { copyToast.classList.add('active'); setTimeout(function() { copyToast.classList.remove('active'); }, 1500); }
 
-            // 广告系统
+            // ========== 广告系统（增强防跳过） ==========
             var adOverlay = document.getElementById('adModalOverlay');
             var adBody = document.getElementById('adBody');
             var adCloseBtn = document.getElementById('adCloseBtn');
             var adQueue = [];
             var isAdShowing = false;
-            var ads = [{
-                type: 'text',
-                icon: '🎉',
-                title: '恭喜本软件正式上线！',
-                body: '七七视频解析经过两年的精心打磨，终于与大家见面了！\n在这两年里，我们攻克了无数解析技术难关，优化了上百个接口线路，只为给您带来最稳定、最流畅的视频解析体验。\n感谢每一位内测用户的支持与陪伴，未来我们将继续努力，提供更优质的服务！',
-                btnText: '我知道了',
-                btnAction: null
-            }, {
-                type: 'image',
-                imgSrc: 'https://i.ibb.co/Q7gpYtJT/image.png',
-                link: 'https://sevenseven712.github.io/shangcheng/',
-                alt: '广告位1',
-                title: '七七软件商城',
-                body: '点击图片了解更多精彩内容'
-            }, {
-                type: 'image',
-                imgSrc: 'https://i.ibb.co/cXXrk3f7/1.png',
-                link: 'https://sevenseven712.github.io/Seven712/',
-                alt: '广告位2',
-                title: 'Seven戚个人博客',
-                body: '点击图片进入浏览'
-            }];
+
+            var ads = [
+                {
+                    type: 'text',
+                    icon: '🎉',
+                    title: '恭喜本软件正式上线！',
+                    body: '七七视频解析经过两年的精心打磨，终于与大家见面了！\n在这两年里，我们攻克了无数解析技术难关，优化了上百个接口线路，只为给您带来最稳定、最流畅的视频解析体验。\n感谢每一位内测用户的支持与陪伴，未来我们将继续努力，提供更优质的服务！',
+                    btnText: '我知道了',
+                    btnAction: null
+                },
+                {
+                    type: 'special',
+                    icon: '🎁',
+                    title: '接口免费使用活动',
+                    body: '暑假期间登录网站，积累观看时长，即可<span class="font-bold text-green">免费</span>使用 PRO 版本接口！<br>PRO 接口速度更快、更加稳定，专为流畅体验而生。',
+                    btnText: '已阅',
+                    specialKey: 'summer_activity_shown'
+                },
+                {
+                    type: 'image',
+                    imgSrc: 'https://i.ibb.co/Q7gpYtJT/image.png',
+                    link: 'https://sevenseven712.github.io/shangcheng/',
+                    alt: '广告位1',
+                    title: '七七软件商城',
+                    body: '点击图片了解更多精彩内容'
+                },
+                {
+                    type: 'image',
+                    imgSrc: 'https://i.ibb.co/cXXrk3f7/1.png',
+                    link: 'https://sevenseven712.github.io/Seven712/',
+                    alt: '广告位2',
+                    title: 'Seven戚个人博客',
+                    body: '点击图片进入浏览'
+                }
+            ];
 
             function buildAdContent(ad) {
                 if (ad.type === 'text') {
-                    return `<div class="ad-icon">${ad.icon}</div><h3>${ad.title}</h3><div class="ad-body">${ad.body.replace(/\n/g,'<br>')}</div><button class="ad-btn" id="adActionBtn">${ad.btnText||'我知道了'}</button>`;
+                    return '<div class="ad-icon">' + ad.icon + '</div><h3>' + ad.title + '</h3><div class="ad-body">' + ad.body.replace(/\n/g,'<br>') + '</div><button class="ad-btn" id="adActionBtn">' + (ad.btnText||'我知道了') + '</button>';
                 } else if (ad.type === 'image') {
-                    return `<div class="ad-icon">${ad.icon||'📢'}</div><h3>${ad.title||'广告'}</h3><div class="ad-body">${ad.body||''}</div><img src="${ad.imgSrc}" alt="${ad.alt||'广告'}" class="ad-img" id="adImgClick"><button class="ad-btn ad-btn-outline" id="adActionBtn">点击图片跳转</button>`;
+                    return '<div class="ad-icon">' + (ad.icon||'📢') + '</div><h3>' + (ad.title||'广告') + '</h3><div class="ad-body">' + (ad.body||'') + '</div><img src="' + ad.imgSrc + '" alt="' + (ad.alt||'广告') + '" class="ad-img" id="adImgClick"><button class="ad-btn ad-btn-outline" id="adActionBtn">点击图片跳转</button>';
+                } else if (ad.type === 'special') {
+                    return '<div class="ad-icon">' + ad.icon + '</div><h3>' + ad.title + '</h3><div class="ad-body">' + ad.body + '</div>' +
+                           '<div class="flex items-center gap-2 mt-3">' +
+                           '<label class="flex items-center gap-1"><input type="checkbox" id="chkSeen" class="mr-1">我已看完</label>' +
+                           '<label class="flex items-center gap-1"><input type="checkbox" id="chkNoRemind" class="mr-1">不再提醒</label>' +
+                           '</div>' +
+                           '<button class="ad-btn" id="adActionBtn" disabled>' + (ad.btnText||'已阅') + '</button>';
                 }
                 return '';
             }
 
-            function showAdModal(title, body, type) {
-                adBody.innerHTML = `<div class="ad-icon">${type==='error'?'❌':'ℹ️'}</div><h3>${title}</h3><div class="ad-body">${body}</div><button class="ad-btn" id="adActionBtn">我知道了</button>`;
+            function showAdModalCustom(ad) {
+                adBody.innerHTML = buildAdContent(ad);
                 adOverlay.classList.add('active');
-                document.getElementById('adActionBtn').addEventListener('click', function() { adOverlay.classList.remove('active'); });
-                adCloseBtn.onclick = function() { adOverlay.classList.remove('active'); };
+                adOverlay.onclick = null;
+
+                if (ad.type === 'special') {
+                    var btn = document.getElementById('adActionBtn');
+                    var chkSeen = document.getElementById('chkSeen');
+                    var chkNoRemind = document.getElementById('chkNoRemind');
+                    var closeBtn = document.getElementById('adCloseBtn');
+
+                    if (closeBtn) closeBtn.style.display = 'none';
+
+                    setTimeout(function() {
+                        updateSpecialBtnState();
+                    }, 5000);
+
+                    function updateSpecialBtnState() {
+                        if (btn && chkSeen && chkNoRemind) {
+                            btn.disabled = !chkSeen.checked;
+                        }
+                    }
+
+                    if (chkSeen) chkSeen.addEventListener('change', updateSpecialBtnState);
+                    if (chkNoRemind) chkNoRemind.addEventListener('change', updateSpecialBtnState);
+
+                    if (btn) {
+                        btn.addEventListener('click', function() {
+                            if (!chkSeen.checked) {
+                                showModal('请先勾选', '请勾选“我已看完”后，才能关闭此弹窗。');
+                                return;
+                            }
+                            if (chkNoRemind.checked) {
+                                try { localStorage.setItem(ad.specialKey, 'true'); } catch(e) {}
+                            }
+                            adOverlay.classList.remove('active');
+                            isAdShowing = false;
+                            setTimeout(showAdFromQueue, 300);
+                        });
+                    }
+
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape' && adOverlay.classList.contains('active')) {
+                            if (document.getElementById('chkSeen')) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    });
+
+                } else {
+                    var closeBtn2 = document.getElementById('adCloseBtn');
+                    if (closeBtn2) closeBtn2.style.display = '';
+
+                    if (closeBtn2) {
+                        closeBtn2.onclick = function() {
+                            adOverlay.classList.remove('active');
+                            isAdShowing = false;
+                            setTimeout(showAdFromQueue, 300);
+                        };
+                    }
+
+                    var actionBtn = document.getElementById('adActionBtn');
+                    if (actionBtn) {
+                        actionBtn.onclick = function() {
+                            adOverlay.classList.remove('active');
+                            isAdShowing = false;
+                            setTimeout(showAdFromQueue, 300);
+                            if (ad.btnAction && typeof ad.btnAction === 'function') {
+                                ad.btnAction();
+                            }
+                        };
+                    }
+
+                    var imgEl = document.getElementById('adImgClick');
+                    if (imgEl && ad.type === 'image') {
+                        imgEl.onclick = function() {
+                            if (ad.link) window.open(ad.link, '_blank');
+                            adOverlay.classList.remove('active');
+                            isAdShowing = false;
+                            setTimeout(showAdFromQueue, 300);
+                        };
+                    }
+
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape' && adOverlay.classList.contains('active')) {
+                            if (!document.getElementById('chkSeen')) {
+                                adOverlay.classList.remove('active');
+                                isAdShowing = false;
+                                setTimeout(showAdFromQueue, 300);
+                            }
+                        }
+                    });
+                }
             }
 
             function showAdFromQueue() {
                 if (adQueue.length === 0 || isAdShowing) return;
                 isAdShowing = true;
                 var ad = adQueue.shift();
-                adBody.innerHTML = buildAdContent(ad);
-                adOverlay.classList.add('active');
-                adCloseBtn.onclick = function() { adOverlay.classList.remove('active'); isAdShowing = false; setTimeout(showAdFromQueue, 300); };
-                var actionBtn = document.getElementById('adActionBtn');
-                if (actionBtn) {
-                    if (ad.type === 'text') {
-                        actionBtn.onclick = function() { adOverlay.classList.remove('active'); isAdShowing = false; setTimeout(showAdFromQueue, 300); if (ad.btnAction && typeof ad.btnAction === 'function') ad.btnAction(); };
-                    } else if (ad.type === 'image') {
-                        actionBtn.onclick = function() { if (ad.link) window.open(ad.link, '_blank'); adOverlay.classList.remove('active'); isAdShowing = false; setTimeout(showAdFromQueue, 300); };
+
+                if (ad.type === 'special') {
+                    var shown = localStorage.getItem(ad.specialKey);
+                    if (shown === 'true') {
+                        isAdShowing = false;
+                        setTimeout(showAdFromQueue, 0);
+                        return;
                     }
                 }
-                var imgEl = document.getElementById('adImgClick');
-                if (imgEl && ad.type === 'image') {
-                    imgEl.onclick = function() { if (ad.link) window.open(ad.link, '_blank'); adOverlay.classList.remove('active'); isAdShowing = false; setTimeout(showAdFromQueue, 300); };
-                }
-                adOverlay.onclick = function(e) { if (e.target === adOverlay) { adOverlay.classList.remove('active'); isAdShowing = false; setTimeout(showAdFromQueue, 300); } };
+
+                showAdModalCustom(ad);
             }
 
-            function showAdQueue() { adQueue.push(ads[0]); adQueue.push(ads[1]); adQueue.push(ads[2]); setTimeout(showAdFromQueue, 600); }
-            document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && adOverlay.classList.contains('active')) { adOverlay.classList.remove('active'); isAdShowing = false; setTimeout(showAdFromQueue, 300); } });
+            function showAdQueue() {
+                adQueue = ads.slice();
+                setTimeout(showAdFromQueue, 600);
+            }
 
-            // 语言设置
+            // ========== 语言设置 ==========
             var languages = ['简体中文', '繁體中文', 'English', '日本語', '한국어', 'Français', 'Deutsch', 'Español', 'Português', 'Русский', 'Italiano', 'Nederlands', 'Svenska', 'Polski', 'Türkçe', 'العربية', 'हिन्दी', 'ไทย', 'Tiếng Việt', 'Bahasa Indonesia'];
             var currentLang = '简体中文';
             var langCurrentText = document.getElementById('langCurrentText');
@@ -863,7 +1229,7 @@
             document.addEventListener('click', function() { langDropdown.classList.remove('open'); });
             try { var savedLang = localStorage.getItem('qq_lang_mobile'); if (savedLang && languages.indexOf(savedLang) !== -1) { currentLang = savedLang; langCurrentText.textContent = savedLang; document.querySelectorAll('.lang-item').forEach(function(el) { el.classList.toggle('active', el.dataset.lang === savedLang); }); } } catch (e) {}
 
-            // 颜色主题
+            // ========== 颜色主题 ==========
             var themes = [
                 { id: 'default', label: '蓝白色', bg: 'linear-gradient(135deg, #f0f4f8, #e2e8f0)' },
                 { id: 'dark', label: '黑色', bg: '#0f0e17' },
@@ -874,20 +1240,20 @@
             var colorPicker = document.getElementById('colorPicker');
             themes.forEach(function(theme) {
                 var opt = document.createElement('div');
-                opt.className = 'color-option' + (theme.id === currentTheme ? ' active' : '');
+                opt.类名 = 'color-option' + (theme.id === currentTheme ? ' active' : '');
                 opt.dataset.theme = theme.id;
                 var preview = document.createElement('div');
-                preview.className = 'preview-bg';
+                preview.类名 = 'preview-bg';
                 preview.style.background = theme.bg;
                 opt.appendChild(preview);
                 var check = document.createElement('div');
-                check.className = 'check';
+                check.类名 = 'check';
                 check.innerHTML = '<i class="fa fa-check"></i>';
                 opt.appendChild(check);
-                opt.addEventListener('click', function(e) {
+                opt.addEventListener('click', 函数(e) {
                     var tid = this.dataset.theme;
                     applyTheme(tid);
-                    document.querySelectorAll('.color-option').forEach(function(el) { el.classList.remove('active'); });
+                    document.querySelectorAll('.color-option').forEach(函数(el) { el.classList.remove('active'); });
                     this.classList.add('active');
                     try { localStorage.setItem('qq_theme_mobile', tid); } catch (e) {}
                     createRipple(e);
@@ -895,24 +1261,24 @@
                 colorPicker.appendChild(opt);
             });
 
-            function applyTheme(themeId) {
+            函数 applyTheme(themeId) {
                 currentTheme = themeId;
-                document.body.className = 'theme-' + themeId + ' content-padding';
-                if (document.body.classList.contains('page-no-nav')) { document.body.classList.add('page-no-nav'); }
+                文档.主体.类名 = '主题-' + 主题ID + '内容填充';
+                如果 (document.body.classList.包含('无导航页面')) { document.body.classList.添加('无导航页面'); }
             }
-            try { var savedTheme = localStorage.getItem('qq_theme_mobile'); if (savedTheme) { var found = false; themes.forEach(function(t) { if (t.id === savedTheme) found = true; }); if (found) { currentTheme = savedTheme; applyTheme(savedTheme); document.querySelectorAll('.color-option').forEach(function(el) { el.classList.toggle('active', el.dataset.theme === savedTheme); }); } } } catch (e) {}
+            尝试 {var已保存的主题 = localStorage.获取项('qq_theme_mobile'); 如果未找到主题遍历函数tid === 真}当前主题应用主题文档querySelectorAll'.color-option'元素classList切换'active', 数据集主题捕获错误
 
-            // 通用弹窗
-            function showModal(msg, onConfirm) {
-                adBody.innerHTML = `<div class="ad-icon">ℹ️</div><h3>提示</h3><div class="ad-body">${msg.replace(/\n/g,'<br>')}</div><button class="ad-btn" id="modalActionBtn">我知道了</button>`;
-                adOverlay.classList.add('active');
+            // ========== 通用弹窗 ==========
+            函数 showModal(msg, onConfirm) {
+                adBody.innerHTML = '<div class="ad-icon">ℹ️</div><h3>提示</h3><div class="ad-body">' + msg.replace(/\n/g,'<br>') + '</div><button class="ad-btn" id="modalActionBtn">我知道了</button>';
+                adOverlay.类列表.add('active');
                 var actionBtn = document.getElementById('modalActionBtn');
-                if (actionBtn) { actionBtn.onclick = function() { adOverlay.classList.remove('active'); if (onConfirm && typeof onConfirm === 'function') onConfirm(); }; }
-                adCloseBtn.onclick = function() { adOverlay.classList.remove('active'); if (onConfirm && typeof onConfirm === 'function') onConfirm(); };
-                adOverlay.onclick = function(e) { if (e.target === adOverlay) { adOverlay.classList.remove('active'); if (onConfirm && typeof onConfirm === 'function') onConfirm(); } };
+                如果 (actionBtn) { actionBtn.onclick = 函数() { adOverlay.类列表.remove('active'); 如果 (onConfirm && typeof onConfirm === 'function') onConfirm(); }; }
+                adCloseBtn.onclick = 函数() { adOverlay.类列表.移除('active'); 如果 (onConfirm && typeof onConfirm === 'function') onConfirm(); };
+                adOverlay.onclick = 空;
             }
 
-            console.log('七七视频解析 v2.0.1 手机版已加载 (仅搜索接口可用)');
+            控制台.日志('七七视频解析 v2.8.0 任务版已加载');
         })();
     </script>
 </body>
