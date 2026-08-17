@@ -522,9 +522,9 @@
     </div>
 
     <!-- 外部 JS 文件 -->
-    <script src="jiekou.js"></script>
-    <script src="work.js"></script>
-    <script src="xieyi.js"></script>
+    <script src="/QQSP/jiekou.js"></script>
+    <script src="/QQSP/work.js"></script>
+    <script src="/QQSP/xieyi.js"></script>
 
     <script>
         (function() {
@@ -1240,20 +1240,20 @@
             var colorPicker = document.getElementById('colorPicker');
             themes.forEach(function(theme) {
                 var opt = document.createElement('div');
-                opt.类名 = 'color-option' + (theme.id === currentTheme ? ' active' : '');
+                opt.className = 'color-option' + (theme.id === currentTheme ? ' active' : '');
                 opt.dataset.theme = theme.id;
                 var preview = document.createElement('div');
-                preview.类名 = 'preview-bg';
+                preview.className = 'preview-bg';
                 preview.style.background = theme.bg;
                 opt.appendChild(preview);
                 var check = document.createElement('div');
-                check.类名 = 'check';
+                check.className = 'check';
                 check.innerHTML = '<i class="fa fa-check"></i>';
                 opt.appendChild(check);
-                opt.addEventListener('click', 函数(e) {
+                opt.addEventListener('click', function(e) {
                     var tid = this.dataset.theme;
                     applyTheme(tid);
-                    document.querySelectorAll('.color-option').forEach(函数(el) { el.classList.remove('active'); });
+                    document.querySelectorAll('.color-option').forEach(function(el) { el.classList.remove('active'); });
                     this.classList.add('active');
                     try { localStorage.setItem('qq_theme_mobile', tid); } catch (e) {}
                     createRipple(e);
@@ -1261,24 +1261,24 @@
                 colorPicker.appendChild(opt);
             });
 
-            函数 applyTheme(themeId) {
+            function applyTheme(themeId) {
                 currentTheme = themeId;
-                文档.主体.类名 = '主题-' + 主题ID + '内容填充';
-                如果 (document.body.classList.包含('无导航页面')) { document.body.classList.添加('无导航页面'); }
+                document.body.className = 'theme-' + themeId + ' content-padding';
+                if (document.body.classList.contains('page-no-nav')) { document.body.classList.add('page-no-nav'); }
             }
-            尝试 {var已保存的主题 = localStorage.获取项('qq_theme_mobile'); 如果未找到主题遍历函数tid === 真}当前主题应用主题文档querySelectorAll'.color-option'元素classList切换'active', 数据集主题捕获错误
+            try { var savedTheme = localStorage.getItem('qq_theme_mobile'); if (savedTheme) { var found = false; themes.forEach(function(t) { if (t.id === savedTheme) found = true; }); if (found) { currentTheme = savedTheme; applyTheme(savedTheme); document.querySelectorAll('.color-option').forEach(function(el) { el.classList.toggle('active', el.dataset.theme === savedTheme); }); } } } catch (e) {}
 
             // ========== 通用弹窗 ==========
-            函数 showModal(msg, onConfirm) {
+            function showModal(msg, onConfirm) {
                 adBody.innerHTML = '<div class="ad-icon">ℹ️</div><h3>提示</h3><div class="ad-body">' + msg.replace(/\n/g,'<br>') + '</div><button class="ad-btn" id="modalActionBtn">我知道了</button>';
-                adOverlay.类列表.add('active');
+                adOverlay.classList.add('active');
                 var actionBtn = document.getElementById('modalActionBtn');
-                如果 (actionBtn) { actionBtn.onclick = 函数() { adOverlay.类列表.remove('active'); 如果 (onConfirm && typeof onConfirm === 'function') onConfirm(); }; }
-                adCloseBtn.onclick = 函数() { adOverlay.类列表.移除('active'); 如果 (onConfirm && typeof onConfirm === 'function') onConfirm(); };
-                adOverlay.onclick = 空;
+                if (actionBtn) { actionBtn.onclick = function() { adOverlay.classList.remove('active'); if (onConfirm && typeof onConfirm === 'function') onConfirm(); }; }
+                adCloseBtn.onclick = function() { adOverlay.classList.remove('active'); if (onConfirm && typeof onConfirm === 'function') onConfirm(); };
+                adOverlay.onclick = null;
             }
 
-            控制台.日志('七七视频解析 v2.8.0 任务版已加载');
+            console.log('七七视频解析 v2.8.0 任务版已加载');
         })();
     </script>
 </body>
